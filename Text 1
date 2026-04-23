@@ -1,1 +1,65 @@
+# Análisis de Red Pasa-Todo (All-Pass Filter)
+**Alumno:** Román Funes
+**Institución:** Universidad Tecnológica Nacional (UTN)
 
+## 1. Desarrollo Analítico
+
+A partir del análisis de nodos en el circuito, planteamos las ecuaciones de equilibrio para hallar la función de transferencia $H(s) = \frac{V_2}{V_1}$.
+
+### Ecuaciones de Nodo
+Para el nodo inversor ($V_-$), asumiendo $R_1 = R_2$:
+$$\frac{V_1 - V_x}{R_1} = \frac{V_x - V_2}{R_2} \implies V_2 = V_x \left(1 + \frac{R_2}{R_1}\right) - V_1 \frac{R_2}{R_1}$$
+
+Para el nodo no inversor ($V_+$), aplicando divisor de tensión:
+$$V_x = V_1 \frac{R_3}{R_3 + \frac{1}{sC}} = V_1 \frac{sR_3C}{sR_3C + 1}$$
+
+### Función de Transferencia
+Sustituyendo $V_x$ y simplificando (asumiendo ganancia unitaria en la etapa inversora):
+$$\frac{V_2}{V_1} = \frac{sR_3C - 1}{sR_3C + 1}$$
+
+Los polos y ceros se ubican en:
+* **Cero:** $s = \frac{1}{R_3C}$
+* **Polo:** $s = -\frac{1}{R_3C}$
+
+## 2. Respuesta en Frecuencia
+
+### Módulo
+El módulo de la transferencia es constante para todas las frecuencias:
+$$|H(j\omega)| = \sqrt{\frac{(R_3C\omega)^2 + (-1)^2}{(R_3C\omega)^2 + 1^2}} = 1$$
+
+### Fase
+La respuesta de fase viene dada por:
+$$\phi(\omega) = 180^\circ - 2 \cdot \arctan(R_3C\omega)$$
+
+## 3. Normalización
+Definimos los parámetros de normalización:
+* **Norma de impedancia:** $\Omega_z = R_3$
+* **Norma de frecuencia:** $\omega_n = \frac{1}{R_3C}$
+* **Variable compleja normalizada:** $S = \frac{s}{\omega_n} = sR_3C$
+
+La función de transferencia normalizada resulta:
+$$H(S) = \frac{S - 1}{S + 1}$$
+
+## 4. Simulación en Python
+A continuación, se presenta el código para visualizar el diagrama de polos y ceros.
+
+```python
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy import signal
+
+# Transferencia normalizada H(s) = (s - 1) / (s + 1)
+sys = signal.TransferFunction([1, -1], [1, 1])
+
+# Gráfico de Polos y Ceros
+plt.figure(figsize=(6, 6))
+plt.scatter(np.real(sys.zeros), np.imag(sys.zeros), s=100, marker='o', label='Cero')
+plt.scatter(np.real(sys.poles), np.imag(sys.poles), s=100, marker='x', label='Polo')
+plt.axhline(0, color='black', lw=1)
+plt.axvline(0, color='black', lw=1)
+plt.title('Diagrama de Polos y Ceros')
+plt.xlabel('Re')
+plt.ylabel('Im')
+plt.grid(True)
+plt.legend()
+plt.show()
